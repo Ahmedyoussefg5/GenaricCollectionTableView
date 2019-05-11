@@ -17,12 +17,18 @@ protocol TableViewCellConfigurable {
 }
 
 class TableViewDataSource<T: IndexPathIndexable, C: TableViewCellConfigurable>: NSObject, UITableViewDataSource, UITableViewDelegate where T.ItemType == C.ItemType {
-    let data: T
+    private let data: T
+    private var heightForRow: CGFloat
     var cellSelect: ((_ index: Int) -> Void)?
 
-    init(data: T, tableView: UITableView) {
+    init(data: T, tableView: UITableView, heightForRow: CGFloat) {
         self.data = data
+        self.heightForRow = heightForRow
+        super.init()
         tableView.register(C.CellType.self, forCellReuseIdentifier: C.reuseIdentifierForIndexPath(indexPath: IndexPath(item: 0, section: 0)))
+        
+        tableView.delegate = self
+        tableView.dataSource = self
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -34,16 +40,20 @@ class TableViewDataSource<T: IndexPathIndexable, C: TableViewCellConfigurable>: 
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("T##items: Any...##Any")
         cellSelect?(indexPath.row)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return heightForRow
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let reuseIdentifier = C.reuseIdentifierForIndexPath(indexPath: indexPath)
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier) as? C.CellType else {
-            fatalError("Cells with reuse identifier \(reuseIdentifier) not of type \(C.CellType.self)")
-        }
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier) as! C.CellType
         let item = data.objectAtIndexPath(indexPath: indexPath)
         C.configureCellAtIndexPath(indexPath: indexPath, item: item, cell: cell)
+        
         return cell
     }
 }

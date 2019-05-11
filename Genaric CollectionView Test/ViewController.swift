@@ -12,9 +12,7 @@ class ViewController: UIViewController {
 
     lazy var mainTableView: UITableView = {
         let tableV = UITableView()
-        tableV.allowsSelection = false
         tableV.translatesAutoresizingMaskIntoConstraints = false
-//        tableV.register(CustomTableViewCell.self, forCellReuseIdentifier: CustomTableViewCell.reuseIdentifierForIndexPath())
         return tableV
     }()
     
@@ -51,11 +49,18 @@ class ViewController: UIViewController {
             mainTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             mainTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             ])
-        dataSource = TableViewDataSource(data: data, tableView: mainTableView)
-        mainTableView.dataSource = dataSource
+        dataSource = TableViewDataSource(data: data, tableView: mainTableView, heightForRow: 100)
+        
+        // You Can Change Delegate For Customization
+        // mainTableView.dataSource = dataSource
+        // mainTableView.delegate = dataSource
         
         dataSource?.cellSelect = { index in
-            print(index)
+            PhotoServices.shared.getImageFromGalary(on: self, completion: { (img) in
+                if let img = img {
+                    print(img.size)
+                }
+            })
         }
     }
 }
