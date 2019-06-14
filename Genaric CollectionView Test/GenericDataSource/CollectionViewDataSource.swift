@@ -8,29 +8,31 @@
 
 import UIKit
 
-protocol CollectionViewCellConfigurable {
-    associatedtype ItemType
-    associatedtype CellType: UICollectionViewCell
-    
-    static func reuseIdentifierForIndexPath(indexPath: IndexPath) -> String
-    static func configureCellAtIndexPath(indexPath: IndexPath, item: ItemType, cell: CellType)
-}
+//protocol CollectionViewCellConfigurable {
+//    associatedtype ItemType
+//    associatedtype CellType: UICollectionViewCell
+//    
+//    static func reuseIdentifierForIndexPath(indexPath: IndexPath) -> String
+//    static func configureCellAtIndexPath(indexPath: IndexPath, item: ItemType, cell: CellType)
+//}
 
-class CollectionViewDataSource<T: IndexPathIndexable, C: CollectionViewCellConfigurable>: NSObject, UICollectionViewDelegate, UICollectionViewDataSource where T.ItemType == C.ItemType {
-    let data: T
+class CollectionViewDataSource<T: Codable, C: BaseCollectionViewCell<T>>: NSObject, UICollectionViewDelegate, UICollectionViewDataSource {
+    
+    let data: [T]
     
     var cellSelect: ((_ index: Int) -> Void)?
 
-    init(data: T) {
+    init(data: [T]) {
         self.data = data
+        super.init()
     }
     
     func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
-        return data.numberOfSections()
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return data.numberOfItemsInSection(section: section)
+        return data.count
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -38,12 +40,9 @@ class CollectionViewDataSource<T: IndexPathIndexable, C: CollectionViewCellConfi
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let reuseIdentifier = C.reuseIdentifierForIndexPath(indexPath: indexPath)
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as? C.CellType else {
-            fatalError("Cells with reuse identifier \(reuseIdentifier) not of type \(C.CellType.self)")
-        }
-        let item = data.objectAtIndexPath(indexPath: indexPath)
-        C.configureCellAtIndexPath(indexPath: indexPath, item: item, cell: cell)
+        let cell = collectionView.dequeueReusableCell(withClass: C.self, for: indexPath)
+        let item = data[indexPath.row]
+        cell.configCell(item)
         return cell
     }
 }

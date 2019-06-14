@@ -8,25 +8,25 @@
 
 import Foundation
 
-protocol IndexPathIndexable {
-    associatedtype ItemType
-    
-    func objectAtIndexPath(indexPath: IndexPath) -> ItemType
-    func numberOfSections() -> Int
-    func numberOfItemsInSection(section: Int) -> Int
-}
+//protocol IndexPathIndexable {
+//    associatedtype ItemType
+//    
+//    func objectAtIndexPath(indexPath: IndexPath) -> ItemType
+//    func numberOfSections() -> Int
+//    func numberOfItemsInSection(section: Int) -> Int
+//}
 
-extension Array: IndexPathIndexable {
-    
-    func objectAtIndexPath(indexPath: IndexPath) -> Element {
-        return self[indexPath.row]
-    }
-    
-    func numberOfSections() -> Int {
-        return 1
-    }
-    
-    func numberOfItemsInSection(section: Int) -> Int {
-        return count
-    }
-}
+//extension Array: IndexPathIndexable {
+//
+//    func objectAtIndexPath(indexPath: IndexPath) -> Element {
+//        return self[indexPath.row]
+//    }
+//
+//    func numberOfSections() -> Int {
+//        return 1
+//    }
+//
+//    func numberOfItemsInSection(section: Int) -> Int {
+//        return count
+//    }
+//}

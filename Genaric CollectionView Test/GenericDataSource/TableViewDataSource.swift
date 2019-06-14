@@ -8,40 +8,50 @@
 
 import UIKit
 
-protocol TableViewCellConfigurable {
-    associatedtype ItemType
-    associatedtype CellType: UITableViewCell
+//protocol TableViewCellConfigurable {
+//    associatedtype ItemType
+//    associatedtype CellType: UITableViewCell
+//    
+////    static func reuseIdentifierForIndexPath(indexPath: IndexPath) -> String
+//    static func configureCellAtIndexPath(indexPath: IndexPath, item: ItemType, cell: CellType)
+//}
+
+class TableViewDataSource<T: Codable, C: BaseTableViewCell<T>>: NSObject, UITableViewDataSource, UITableViewDelegate {
     
-    static func reuseIdentifierForIndexPath(indexPath: IndexPath) -> String
-    static func configureCellAtIndexPath(indexPath: IndexPath, item: ItemType, cell: CellType)
-}
-
-class TableViewDataSource<T: IndexPathIndexable, C: TableViewCellConfigurable>: NSObject, UITableViewDataSource, UITableViewDelegate where T.ItemType == C.ItemType {
-    private let data: T
+    private weak var tableView: UITableView?
+    
+    private let data: [T]
     private var heightForRow: CGFloat
-    var cellSelect: ((_ index: Int) -> Void)?
+    
+    var cellSelect: ((_ index: Int, _ cell: C?) -> Void)? {
+        didSet {
+            tableView?.allowsSelection = true
+        }
+    }
 
-    init(data: T, tableView: UITableView, heightForRow: CGFloat) {
+    init(data: [T], tableView: UITableView, heightForRow: CGFloat) {
         self.data = data
         self.heightForRow = heightForRow
+        self.tableView = tableView
         super.init()
-        tableView.register(C.CellType.self, forCellReuseIdentifier: C.reuseIdentifierForIndexPath(indexPath: IndexPath(item: 0, section: 0)))
+        
+        tableView.register(C.self, forCellReuseIdentifier: String(describing: C.self))
         
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.allowsSelection = false
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return data.numberOfSections()
+        return 1
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return data.numberOfItemsInSection(section: section)
+        return data.count
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("T##items: Any...##Any")
-        cellSelect?(indexPath.row)
+        cellSelect?(indexPath.row, tableView.cellForRow(at: indexPath) as? C)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -49,10 +59,10 @@ class TableViewDataSource<T: IndexPathIndexable, C: TableViewCellConfigurable>: 
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let reuseIdentifier = C.reuseIdentifierForIndexPath(indexPath: indexPath)
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier) as! C.CellType
-        let item = data.objectAtIndexPath(indexPath: indexPath)
-        C.configureCellAtIndexPath(indexPath: indexPath, item: item, cell: cell)
+        let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: C.self)) as! C
+//        let item = data.objectAtIndexPath(indexPath: indexPath)
+        
+        cell.configCell(data[indexPath.row])
         
         return cell
     }

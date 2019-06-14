@@ -111,8 +111,8 @@
 		E8D34CB1226F5AD200A084EA /* CellAbstractions */ = {
 			isa = PBXGroup;
 			children = (
-				E8D34CB2226F5AD200A084EA /* ConfigurableCell.swift */,
 				E8D34CB3226F5AD200A084EA /* ReusableCell.swift */,
+				E8D34CB2226F5AD200A084EA /* ConfigurableCell.swift */,
 			);
 			path = CellAbstractions;
 			sourceTree = "<group>";
