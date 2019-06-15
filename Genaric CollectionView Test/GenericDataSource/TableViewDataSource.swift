@@ -39,7 +39,7 @@ class TableViewDataSource<T: Codable, C: BaseTableViewCell<T>>: NSObject, UITabl
         
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.allowsSelection = false
+        tableView.allowsSelection = false        
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
