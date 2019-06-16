@@ -28,6 +28,8 @@ class TableViewDataSource<T: Codable, C: BaseTableViewCell<T>>: NSObject, UITabl
             tableView?.allowsSelection = true
         }
     }
+    
+    var willDisplayRow: ((_ index: Int) -> Void)?
 
     init(data: [T], tableView: UITableView, heightForRow: CGFloat) {
         self.data = data
@@ -65,5 +67,9 @@ class TableViewDataSource<T: Codable, C: BaseTableViewCell<T>>: NSObject, UITabl
         cell.configCell(data[indexPath.row])
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        willDisplayRow?(indexPath.row)
     }
 }
