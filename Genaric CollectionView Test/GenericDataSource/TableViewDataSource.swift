@@ -21,7 +21,7 @@ class TableViewDataSource<T: Codable, C: BaseTableViewCell<T>>: NSObject, UITabl
     private weak var tableView: UITableView?
     
     private let data: [T]
-    private var heightForRow: CGFloat
+    private var heightForRow: CGFloat?
     
     var cellSelect: ((_ index: Int, _ cell: C?) -> Void)? {
         didSet {
@@ -30,8 +30,8 @@ class TableViewDataSource<T: Codable, C: BaseTableViewCell<T>>: NSObject, UITabl
     }
     
     var willDisplayRow: ((_ index: Int) -> Void)?
-
-    init(data: [T], tableView: UITableView, heightForRow: CGFloat) {
+    
+    init(data: [T], tableView: UITableView, heightForRow: CGFloat? = nil) {
         self.data = data
         self.heightForRow = heightForRow
         self.tableView = tableView
@@ -41,7 +41,11 @@ class TableViewDataSource<T: Codable, C: BaseTableViewCell<T>>: NSObject, UITabl
         
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.allowsSelection = false        
+        tableView.allowsSelection = false
+        if heightForRow == nil {
+            tableView.estimatedRowHeight = 100
+        }
+        tableView.reloadData()
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -53,16 +57,17 @@ class TableViewDataSource<T: Codable, C: BaseTableViewCell<T>>: NSObject, UITabl
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         cellSelect?(indexPath.row, tableView.cellForRow(at: indexPath) as? C)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return heightForRow
+        return heightForRow ?? UITableView.automaticDimension
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: C.self)) as! C
-//        let item = data.objectAtIndexPath(indexPath: indexPath)
+        // let item = data.objectAtIndexPath(indexPath: indexPath)
         
         cell.configCell(data[indexPath.row])
         
